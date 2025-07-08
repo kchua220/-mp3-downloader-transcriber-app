@@ -26,7 +26,14 @@ def scrape_mp3_links(url):
 
 # DOWNLOAD, TRANSCRIBE, GENERATE PDF
 def process_mp3s(mp3_links, folder_path):
+    max_files_per_run = 5  # Limit for testing
+    processed_count = 0
+
     for mp3_url, display_name in mp3_links:
+        if processed_count >= max_files_per_run:
+            print("Reached max files per run. Stopping for this run.")
+            break
+
         display_name = display_name.replace("/", "_").replace("\\", "_").replace(":", "_")
         mp3_filename = display_name + ".mp3"
         pdf_filename = display_name + ".pdf"
@@ -39,8 +46,10 @@ def process_mp3s(mp3_links, folder_path):
                 if chunk:
                     f.write(chunk)
         print(f"Downloaded {mp3_filename}")
+
         if os.path.getsize(mp3_path) > 25 * 1024 * 1024:
             print(f"Skipping {mp3_filename} - file too large for Whisper API (>{25}MB).")
+            os.remove(mp3_path)
             continue
 
         # Transcribe using OpenAI Whisper
@@ -70,6 +79,7 @@ def process_mp3s(mp3_links, folder_path):
         print(f"Deleted {mp3_filename} to free space")
 
         gc.collect()
+        processed_count += 1
 
 # ROUTES
 @app.route("/", methods=["GET", "POST"])
