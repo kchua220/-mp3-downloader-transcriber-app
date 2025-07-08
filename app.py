@@ -118,6 +118,10 @@ def index():
     </body>
     </html>
 '''
+if os.path.getsize(mp3_path) > 25 * 1024 * 1024:
+    print(f"Skipping {mp3_filename} - file too large for Whisper API.")
+    continue
+
 
 # DOWNLOAD ROUTE
 @app.route("/download/<folder>/<filename>")
