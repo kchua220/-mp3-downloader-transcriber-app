@@ -37,6 +37,9 @@ def process_mp3s(mp3_links, folder_path):
                 if chunk:
                     f.write(chunk)
         print(f"Downloaded {mp3_filename}")
+        if os.path.getsize(mp3_path) > 25 * 1024 * 1024:
+            print(f"Skipping {mp3_filename} - file too large for Whisper API (>{25}MB).")
+            continue
 
         # Transcribe using OpenAI Whisper
         with open(mp3_path, "rb") as audio_file:
@@ -118,9 +121,7 @@ def index():
     </body>
     </html>
 '''
-if os.path.getsize(mp3_path) > 25 * 1024 * 1024:
-    print(f"Skipping {mp3_filename} - file too large for Whisper API.")
-    continue
+
 
 
 # DOWNLOAD ROUTE
