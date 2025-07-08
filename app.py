@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import os
 from openai import OpenAI
 from fpdf import FPDF
-from pydub import AudioSegment
 
 app = Flask(__name__)
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -38,15 +37,6 @@ def process_mp3s(mp3_links, folder_path):
                 if chunk:
                     f.write(chunk)
         print(f"Downloaded {mp3_filename}")
-
-        if os.path.getsize(mp3_path) > 25 * 1024 * 1024:
-            print(f"Compressing {mp3_filename} as it exceeds 25 MB")
-            compressed_path = os.path.join(folder_path, "compressed_" + mp3_filename)
-            compress_audio(mp3_path, compressed_path)
-
-            # Replace original with compressed
-            os.remove(mp3_path)
-            os.rename(compressed_path, mp3_path)
 
         # Transcribe using OpenAI Whisper
         with open(mp3_path, "rb") as audio_file:
@@ -134,10 +124,6 @@ def index():
 def download(folder, filename):
     folder_path = os.path.join("static", folder)
     return send_from_directory(folder_path, filename, as_attachment=True)
-
-def compress_audio(input_path, output_path):
-    audio = AudioSegment.from_file(input_path)
-    audio.export(output_path, format="mp3", bitrate="32k")  # lower bitrate reduces size
 
 if __name__ == "__main__":
     os.makedirs("static", exist_ok=True)
