@@ -2,6 +2,7 @@ from flask import Flask, request, send_from_directory
 import requests
 from bs4 import BeautifulSoup
 import os
+import gc
 from openai import OpenAI
 from fpdf import FPDF
 
@@ -63,6 +64,11 @@ def process_mp3s(mp3_links, folder_path):
             pdf.multi_cell(0, 10, line)
         pdf.output(pdf_path)
         print(f"Created transcript PDF: {pdf_filename}")
+
+        os.remove(mp3_path)
+        print(f"Deleted {mp3_filename} to free space")
+
+        gc.collect()
 
 # ROUTES
 @app.route("/", methods=["GET", "POST"])
