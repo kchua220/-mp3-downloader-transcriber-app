@@ -31,10 +31,12 @@ def process_mp3s(mp3_links, folder_path):
         pdf_filename = display_name + ".pdf"
 
         # Download MP3
-        response = requests.get(mp3_url)
-        mp3_path = os.path.join(folder_path, mp3_filename)
-        with open(mp3_path, 'wb') as f:
-            f.write(response.content)
+       response = requests.get(mp3_url, stream=True)
+       mp3_path = os.path.join(folder_path, mp3_filename)
+          with open(mp3_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+            f.write(chunk)
         print(f"Downloaded {mp3_filename}")
 
         # Transcribe using OpenAI Whisper
